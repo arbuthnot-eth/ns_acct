@@ -7,7 +7,9 @@ authors = ["Brandon Arbuthnot (brandon@imbibed.life)"]
 
 [dependencies]
 Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/mainnet" }
+# Using only SuiNS core - implementing subdomains at the application level
 suins = { r.mvr = "@suins/core" }
+
 
 [addresses]
 ns_acct = "0x0"

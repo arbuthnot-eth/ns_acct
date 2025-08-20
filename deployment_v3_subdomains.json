@@ -1,0 +1,24 @@
+{
+    "packageId": "0x9feb555825ef615c55f160d2ebd79f5137efd000b6cb8886c4442b6e366e726f",
+    "network": "testnet",
+    "deployer": "0x3db42086e9271787046859d60af7933fa7ea70148df37c9fd693195533eabb57",
+    "timestamp": "2025-01-20T06:12:57Z",
+    "explorerUrl": "https://suiscan.xyz/testnet/object/0x9feb555825ef615c55f160d2ebd79f5137efd000b6cb8886c4442b6e366e726f",
+    "transactionDigest": "DSKcQgmZSeBZddg7GGuMAaPteMnEACLMhwuzmEtBTHFW",
+    "upgradeCap": "0x2383a95f2613cb94b12aa671b24b3bd25cdfcb8c291e5e1e7903124b4daaecf0",
+    "version": "v3_with_subdomains",
+    "features": [
+        "Full SuiNS core integration",
+        "Domain-based account creation",
+        "AccountCap for proof of domain ownership",
+        "SubdomainCap for subdomain creation",
+        "Subdomain account creation (alice.acct.sui)",
+        "Subdomain registry tracking in parent accounts",
+        "Application-level subdomain management",
+        "Compatible with MVR (Move Registry)"
+    ],
+    "dependencies": {
+        "suins": "@suins/core (version 5 on testnet)"
+    },
+    "note": "Enhanced version with subdomain support. Avoids SuiNS package conflicts by implementing subdomains at the application level."
+}
