@@ -1,0 +1,11 @@
+{
+    "packageId": "0x03ea89e90deeed29b2d88f510d9517d00a7c30248a2d3744e8e2bd0f3a15c51c",
+    "network": "testnet",
+    "deployer": "0xfa6317afc29a71f750548abbadcfb6468a788083f3c5999466ce39a171603aca",
+    "timestamp": "2025-01-20T05:36:22Z",
+    "explorerUrl": "https://suiscan.xyz/testnet/object/0x03ea89e90deeed29b2d88f510d9517d00a7c30248a2d3744e8e2bd0f3a15c51c",
+    "transactionDigest": "GhSTttYr7g1CAXWJgB4wWbnhJqAA1k9LyxpB1PHFdJPK",
+    "upgradeCap": "0x8be22fb6b63a94481de5db1fc43358a0f113163ffc3d297f323895f135eee575",
+    "version": "simplified",
+    "note": "Deployed simplified version without SuiNS integration for initial testing"
+}

@@ -1,0 +1,14 @@
+[package]
+name = "ns_acct"
+edition = "2024.beta"
+license = "Apache 2.0"
+authors = ["Brandon Arbuthnot (brandon@imbibed.life)"]
+
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/mainnet" }
+suins = { r.mvr = "@suins/core" }
+
+[addresses]
+ns_acct = "0x0"
+sui = "0x2"

@@ -1,0 +1,18 @@
+[package]
+name = "ns_acct"
+edition = "2024.beta"
+license = "Apache 2.0"
+authors = ["Brandon Arbuthnot (brandon@imbibed.life)"]
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/mainnet" }
+# SuiNS packages - using mainnet versions for consistency
+suins = { git = "https://github.com/MystenLabs/suins-contracts.git", subdir = "packages/suins", rev = "main" }
+suins_subdomains = { git = "https://github.com/MystenLabs/suins-contracts.git", subdir = "packages/subdomains", rev = "main" }
+
+[addresses]
+ns_acct = "0x0"
+# Let SuiNS contracts use their default addresses
+# suins = "0xd22b24490e0bae52676651b4f56660a5ff8022a2576e0089f79b3c88d44e08f0"
+# suins_subdomains = "0xe177697e191327901637f8d2c5ffbbde8b1aaac27ec1024c4b62d1ebd1cd7430"
+sui = "0x2"

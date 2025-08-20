@@ -1,0 +1,22 @@
+{
+    "packageId": "0xe44413a2494831a512de1d68d4c5d2293d369b00a428fc85594d00978c08b173",
+    "network": "testnet",
+    "deployer": "0xfa6317afc29a71f750548abbadcfb6468a788083f3c5999466ce39a171603aca",
+    "timestamp": "2025-01-20T05:53:56Z",
+    "explorerUrl": "https://suiscan.xyz/testnet/object/0xe44413a2494831a512de1d68d4c5d2293d369b00a428fc85594d00978c08b173",
+    "transactionDigest": "BMJN1V5iRupiGiYYwrgzZ187JuTLaFsSToE8ZCq3pTZZ",
+    "upgradeCap": "0x6124cadbe7bace16d2f35f8704a8b315fa84a8d2f08a4491ad3a45e8dd219bd2",
+    "version": "v2_with_suins_integration",
+    "features": [
+        "Full SuiNS core integration",
+        "Domain-based account creation",
+        "AccountCap for proof of domain ownership",
+        "Domain name storage in account",
+        "Compatible with MVR (Move Registry)"
+    ],
+    "dependencies": {
+        "suins": "@suins/core (version 5 on testnet)",
+        "framework": "framework/mainnet"
+    },
+    "note": "Deployed with full SuiNS integration using Move Registry (MVR). Compatible with testnet SuiNS."
+}
