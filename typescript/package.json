@@ -1,0 +1,16 @@
+{
+  "name": "ns-acct-query",
+  "version": "1.0.0",
+  "description": "Query NS Account Registry for free",
+  "main": "query-registry.ts",
+  "scripts": {
+    "query": "bun query-registry.ts --",
+    "list": "bun query-registry.ts --list"
+  },
+  "dependencies": {
+    "@mysten/sui": "^1.37.4"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}

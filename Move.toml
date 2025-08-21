@@ -1,16 +1,18 @@
 [package]
-name = "ns_acct"
+name = "acct_registry"
 edition = "2024.beta"
 license = "Apache 2.0"
 authors = ["Brandon Arbuthnot (brandon@imbibed.life)"]
 
-
 [dependencies]
 Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/mainnet" }
-# Using only SuiNS core - implementing subdomains at the application level
-suins = { r.mvr = "@suins/core" }
-
+# SuiNS core package (generic core v4 tag)
+suins = { git = "https://github.com/mystenlabs/suins-contracts/", subdir = "packages/suins", rev = "releases/core/4" }
 
 [addresses]
-ns_acct = "0x0"
+acct_registry = "0x0"
 sui = "0x2"
+
+# Module structure:
+# - registry.move: Main registry contract with namespace management
+# - Tests will be in tests/ directory

@@ -1,3 +1,15 @@
 build/*
 .trace
 .coverage*
+frontend/node_modules
+
+# TypeScript/Node.js artifacts
+typescript/node_modules/
+typescript/*.js
+typescript/*.js.map
+typescript/dist/
+
+# Deployment artifacts (keep config.json as it's organized)
+all_objects.json
+deployment_result.json
+# deployment_info.json can be kept for reference
