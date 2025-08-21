@@ -1,11 +1,15 @@
 import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 
+// Constants
+const NETWORK = 'testnet';
+const NAMESPACE = 'ns';
+
 /**
  * Simple function to query account data from NS registry
  * Usage: node query-registry.js "n-s.acct.sui"
  */
 async function getAccountData(domain: string) {
-  const client = new SuiClient({ url: getFullnodeUrl('testnet') });
+  const client = new SuiClient({ url: getFullnodeUrl(NETWORK) });
   
   try {
     console.log(`🔍 Looking up: ${domain}`);
@@ -25,10 +29,10 @@ async function getAccountData(domain: string) {
     const namespacesTableId = (registry.data?.content as any)?.fields?.namespaces?.fields?.id?.id;
     if (!namespacesTableId) throw new Error("No namespaces table found");
     
-    // Step 3: Find "ns" namespace
+    // Step 3: Find namespace
     const namespaces = await client.getDynamicFields({ parentId: namespacesTableId });
-    const nsNamespace = namespaces.data?.find((f: any) => f.name.value === "ns");
-    if (!nsNamespace) throw new Error("Namespace 'ns' not found");
+    const nsNamespace = namespaces.data?.find((f: any) => f.name.value === NAMESPACE);
+    if (!nsNamespace) throw new Error(`Namespace '${NAMESPACE}' not found`);
     
     // Step 4: Get entries table from namespace
     const namespaceObj = await client.getObject({
@@ -42,7 +46,7 @@ async function getAccountData(domain: string) {
     // Step 5: Find domain entry
     const entries = await client.getDynamicFields({ parentId: entriesTableId });
     const domainEntry = entries.data?.find((f: any) => f.name.value === domain);
-    if (!domainEntry) throw new Error(`Domain '${domain}' not found`);
+    if (!domainEntry) throw new Error(`AcctObject for '${domain}' not found in the ${NAMESPACE} namespace`);
     
     // Step 6: Get account data
     const accountObj = await client.getObject({
@@ -66,7 +70,7 @@ async function getAccountData(domain: string) {
     return accountData;
     
   } catch (error) {
-    console.error(`❌ Error: ${error}`);
+    console.error(`❌ ${error}`);
     return null;
   }
 }
@@ -75,7 +79,7 @@ async function getAccountData(domain: string) {
  * List all domains in the registry
  */
 async function listDomains() {
-  const client = new SuiClient({ url: getFullnodeUrl('testnet') });
+  const client = new SuiClient({ url: getFullnodeUrl(NETWORK) });
   
   try {
     console.log('📋 Listing all domains...');
@@ -89,10 +93,10 @@ async function listDomains() {
     
     const namespacesTableId = (registry.data?.content as any)?.fields?.namespaces?.fields?.id?.id;
     const namespaces = await client.getDynamicFields({ parentId: namespacesTableId });
-    const nsNamespace = namespaces.data?.find((f: any) => f.name.value === "ns");
+    const nsNamespace = namespaces.data?.find((f: any) => f.name.value === NAMESPACE);
     
     if (!nsNamespace) {
-      console.log('❌ No domains found');
+      console.log(`❌ Namespace '${NAMESPACE}' not found`);
       return [];
     }
     
@@ -112,7 +116,7 @@ async function listDomains() {
     return domains;
     
   } catch (error) {
-    console.error(`❌ Error: ${error}`);
+    console.error(`❌ ${error}`);
     return [];
   }
 }

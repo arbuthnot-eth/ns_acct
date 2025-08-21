@@ -11,6 +11,10 @@
     "@mysten/sui": "^1.37.4"
   },
   "devDependencies": {
+    "@types/node": "^24.3.0",
     "bun-types": "latest"
+  },
+  "compilerOptions": {
+    "types": ["node"]
   }
 }
