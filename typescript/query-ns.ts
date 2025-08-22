@@ -17,7 +17,7 @@ interface AcctDataResult {
 async function getRPC_URL(network: string): Promise<string> {
   switch (network) {
     case 'testnet':
-      return 'https://fullnode.testnet.sui.io:443';
+      return 'https://sui-testnet-rpc.publicnode.com';
     case 'mainnet':
       return 'https://sui-rpc.publicnode.com';
     default:
