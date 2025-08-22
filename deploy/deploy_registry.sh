@@ -8,7 +8,7 @@ set -e
 # Configuration
 NETWORK="testnet"
 PACKAGE_NAME="acct_registry"
-REGISTRY_OWNER_ADDRESS="YOUR_ADDRESS_HERE"
+REGISTRY_OWNER_NAME="reg.acct.sui"
 
 echo "🚀 Deploying NS Account Registry to $NETWORK"
 
@@ -30,26 +30,43 @@ echo "✅ Package deployed successfully!"
 echo "📋 Package ID: $PACKAGE_ID"
 echo "📋 Registry ID: $REGISTRY_ID"
 
+# Step 3: Resolve .sui name to address
+echo "🔍 Resolving $REGISTRY_OWNER_NAME to address..."
+REGISTRY_OWNER_ADDRESS=$(bun -e "import { resolveSuiName } from './typescript/resolve-sui-name.ts'; resolveSuiName('$REGISTRY_OWNER_NAME').then(address => { if (address) console.log(address); else process.exit(1); });")
+
+if [ $? -ne 0 ] || [ -z "$REGISTRY_OWNER_ADDRESS" ]; then
+    echo "❌ Failed to resolve $REGISTRY_OWNER_NAME"
+    exit 1
+fi
+
+if [ -z "$REGISTRY_OWNER_ADDRESS" ]; then
+    echo "❌ Could not extract address from resolve output"
+    exit 1
+fi
+
+echo "✅ Resolved $REGISTRY_OWNER_NAME to: $REGISTRY_OWNER_ADDRESS"
+
 # Save deployment info
 echo "{
     \"network\": \"$NETWORK\",
     \"package_id\": \"$PACKAGE_ID\",
     \"registry_id\": \"$REGISTRY_ID\",
-    \"registry_owner\": \"$REGISTRY_OWNER_ADDRESS\",
+    \"registry_owner_name\": \"$REGISTRY_OWNER_NAME\",
+    \"registry_owner_address\": \"$REGISTRY_OWNER_ADDRESS\",
     \"deployment_time\": \"$(date)\"
 }" > deployment_registry.json
 
 echo "💾 Deployment info saved to deployment_registry.json"
 
-# Step 3: Initialize registry (requires acct.sui ownership)
+# Step 4: Initialize registry (requires acct.sui ownership)
 echo "⚙️  Initializing registry..."
-if [ -z "$REGISTRY_OWNER_ADDRESS" ] || [ "$REGISTRY_OWNER_ADDRESS" = "YOUR_ADDRESS_HERE" ]; then
-    echo "❌ Please set REGISTRY_OWNER_ADDRESS in the script"
+if [ -z "$REGISTRY_OWNER_ADDRESS" ]; then
+    echo "❌ Failed to resolve registry owner address"
     exit 1
 fi
 
 echo "🔐 Please ensure you have the following before continuing:"
-echo "   1. The address $REGISTRY_OWNER_ADDRESS owns acct.sui"
+echo "   1. The name $REGISTRY_OWNER_NAME resolves to your address"
 echo "   2. You have sufficient SUI for gas fees"
 echo "   3. You're ready to create reg.acct.sui subname"
 
@@ -59,15 +76,22 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
-# Step 4: Create reg.acct.sui subname
-echo "🌐 Creating reg.acct.sui subname..."
-echo "Please create the subname 'reg' under 'acct.sui' via the SuiNS app or SDK"
-echo "Set the target address to: $REGISTRY_ID"
+# Step 4: Check if reg.acct.sui needs to be updated
+echo "🌐 Checking reg.acct.sui target..."
+CURRENT_REGISTRY_ID=$(bun -e "import { resolveSuiName } from './typescript/resolve-sui-name.ts'; resolveSuiName('reg.acct.sui').then(address => { if (address) console.log(address); else process.exit(1); });")
 
-read -p "Have you created reg.acct.sui and set its target? (y/N): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    exit 1
+if [ "$CURRENT_REGISTRY_ID" = "$REGISTRY_ID" ]; then
+    echo "✅ reg.acct.sui already points to the newly deployed registry ID: $REGISTRY_ID"
+    echo "   No update needed."
+else
+    echo "⚠️  reg.acct.sui currently points to a different registry ID."
+    echo "   Current target: $CURRENT_REGISTRY_ID"
+    echo "   New registry ID: $REGISTRY_ID"
+    echo ""
+    echo "   You will need to update reg.acct.sui to point to the new registry ID."
+    echo "   This can be done via the SuiNS app or SDK."
+    
+    read -p "Press Enter to continue after updating reg.acct.sui, or Ctrl+C to abort: "
 fi
 
 # Step 5: Add initial namespaces
@@ -83,7 +107,8 @@ echo ""
 echo "📋 Summary:"
 echo "   • Package ID: $PACKAGE_ID"
 echo "   • Registry ID: $REGISTRY_ID"
-echo "   • Registry Owner: $REGISTRY_OWNER_ADDRESS"
+echo "   • Registry Owner Name: $REGISTRY_OWNER_NAME"
+echo "   • Registry Owner Address: $REGISTRY_OWNER_ADDRESS"
 echo "   • Network: $NETWORK"
 echo "   • reg.acct.sui resolves to: $REGISTRY_ID"
 echo ""
@@ -94,5 +119,6 @@ echo "   3. Add more namespaces as needed"
 echo ""
 echo "📚 Usage examples:"
 echo "   • Query: cd typescript && bun query-registry.ts \"alice.sui\""
-echo "   • Update: sui client call --package $PACKAGE_ID --module ns_acct --function update_entry --args $REGISTRY_ID <SUINS_ID> \"ns\" \"alice.sui\" \"data\" <TARGET_ADDRESS> <CALLER_ADDRESS>"
+echo "   • Update with NFT: sui client call --package $PACKAGE_ID --module ns_acct --function update_entry_with_nft --args $REGISTRY_ID <SUINS_ID> <NFT_ID> \"ns\" \"data\""
+echo "   • Update fallback: sui client call --package $PACKAGE_ID --module ns_acct --function update_entry --args $REGISTRY_ID <SUINS_ID> \"ns\" \"alice.sui\" \"data\" <CALLER_ADDRESS>"
 

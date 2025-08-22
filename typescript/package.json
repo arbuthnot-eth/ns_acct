@@ -5,16 +5,20 @@
   "main": "query-registry.ts",
   "scripts": {
     "query": "bun query-registry.ts --",
-    "list": "bun query-registry.ts --list"
+    "list": "bun query-registry.ts --list",
+    "resolve-name": "bun resolve-sui-name.ts"
   },
   "dependencies": {
-    "@mysten/sui": "^1.37.4"
+    "@mysten/sui": "^1.37.4",
+    "@mysten/suins": "^0.7.34"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
     "bun-types": "latest"
   },
   "compilerOptions": {
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   }
 }

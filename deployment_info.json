@@ -1,0 +1,19 @@
+{
+  "network": "testnet",
+  "package_id": "0x06ad9bfb05e2a6b98116047665f8974e0f6d93e09f2cd9fee18086ee17a146f5",
+  "registry_id": "0xfd18d89bf18e1af4fedca2415766ddac667f4be762c496fbf65a24059b5e53e4",
+  "registry_owner": "0x3db42086e9271787046859d60af7933fa7ea70148df37c9fd693195533eabb57",
+  "deployment_time": "2024-12-19",
+  "namespaces": {
+    "ns": {
+      "table_id": "0x754dc4d4b47c1f123e9a26f5f0622d87699dcfe09bd0977ee27841666a5a3270",
+      "status": "active"
+    }
+  },
+  "transactions": {
+    "package_publish": "EDqMDWrQXmJMmjx1Pesg1QC3RZn5D1zBYnJNSmKsca25",
+    "registry_create": "7xvi7GDMqVUzjZRe99B4qyE6pkVPwJEgngzvmAATPbVA",
+    "namespace_add": "5SVQ33NXdcrLktMVbj9W4pneXPBM9Q8hkv8HqM6jbEZC"
+  }
+}
+
