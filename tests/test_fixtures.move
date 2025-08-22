@@ -1,6 +1,5 @@
-#[test_only]
-module ns_acct::test_fixtures {
-    use ns_acct::ns_acct;
+module acct_registry::test_fixtures {
+    use acct_registry::ns_acct;
     use sui::object;
     use sui::test_scenario::{Self, Scenario};
     use sui::transfer;
@@ -13,7 +12,7 @@ module ns_acct::test_fixtures {
         domain_name: vector<u8>,
         initial_value: u64,
         ctx: &mut tx_context::TxContext
-    ): (ns_acct::Acct, object::ID) {
+    ): (acct_registry::ns_acct::Acct, object::ID) {
         let domain = string::utf8(domain_name);
         let reg_id = object::id_from_address(@0x1001);
 
@@ -27,7 +26,7 @@ module ns_acct::test_fixtures {
         subname: vector<u8>,
         initial_value: u64,
         ctx: &mut tx_context::TxContext
-    ): (ns_acct::Acct, object::ID) {
+    ): (acct_registry::ns_acct::Acct, object::ID) {
         let parent_domain_str = string::utf8(parent_domain);
         let subname_str = string::utf8(subname);
 
@@ -46,7 +45,7 @@ module ns_acct::test_fixtures {
         namespace: vector<u8>,
         parent_domain: vector<u8>,
         ctx: &mut tx_context::TxContext
-    ): (ns_acct::Acct, object::ID) {
+    ): (acct_registry::ns_acct::Acct, object::ID) {
         let namespace_str = string::utf8(namespace);
         let parent_domain_str = string::utf8(parent_domain);
 
@@ -66,7 +65,7 @@ module ns_acct::test_fixtures {
         fields: vector<vector<u8>>,
         values: vector<vector<u8>>,
         ctx: &mut tx_context::TxContext
-    ): (ns_acct::Acct, object::ID) {
+    ): (acct_registry::ns_acct::Acct, object::ID) {
         let domain = string::utf8(domain_name);
         let reg_id = object::id_from_address(@0x1004);
 
@@ -86,11 +85,11 @@ module ns_acct::test_fixtures {
 
     /// Test fixture for creating a complex multi-user scenario
     public fun create_multi_user_scenario_fixture(ctx: &mut tx_context::TxContext): (
-        ns_acct::Acct,  // namespace service account
-        ns_acct::Acct,  // user1 account
-        ns_acct::Acct,  // user2 account
-        ns_acct::Acct,  // user1 ns account
-        ns_acct::Acct   // user2 ns account
+        acct_registry::ns_acct::Acct,  // namespace service account
+        acct_registry::ns_acct::Acct,  // user1 account
+        acct_registry::ns_acct::Acct,  // user2 account
+        acct_registry::ns_acct::Acct,  // user1 ns account
+        acct_registry::ns_acct::Acct   // user2 ns account
     ) {
         // Create namespace service account
         let (ns_acct, _ns_reg_id) = create_namespace_service_fixture(
@@ -102,6 +101,7 @@ module ns_acct::test_fixtures {
             b"alice.sui", 100, ctx
         );
 
+        // Create user accounts
         let (user2_acct, _user2_reg_id) = create_user_account_fixture(
             b"bob.sui", 200, ctx
         );
@@ -120,7 +120,7 @@ module ns_acct::test_fixtures {
 
     /// Test fixture for error scenarios
     public fun create_error_scenario_fixture(ctx: &mut tx_context::TxContext): (
-        ns_acct::Acct,  // account with mismatched registration
+        acct_registry::ns_acct::Acct,  // account with mismatched registration
         object::ID      // different registration ID
     ) {
         let acct = ns_acct::create_test_acct(
@@ -139,7 +139,7 @@ module ns_acct::test_fixtures {
     public fun create_large_registry_fixture(
         num_entries: u64,
         ctx: &mut tx_context::TxContext
-    ): ns_acct::Acct {
+    ): acct_registry::ns_acct::Acct {
         let mut acct = ns_acct::create_test_acct(
             object::id_from_address(@0x3001),
             string::utf8(b"registry.sui"),
@@ -189,7 +189,7 @@ module ns_acct::test_fixtures {
         num_accounts: u64,
         fields_per_account: u64,
         ctx: &mut tx_context::TxContext
-    ): vector<ns_acct::Acct> {
+    ): vector<acct_registry::ns_acct::Acct> {
         let mut accounts = vector::empty();
 
         let mut i = 0;
@@ -214,4 +214,5 @@ module ns_acct::test_fixtures {
 
         accounts
     }
+}
 }

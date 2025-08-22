@@ -10,11 +10,60 @@ NETWORK="testnet"
 PACKAGE_NAME="acct_registry"
 REGISTRY_OWNER_NAME="reg.acct.sui"
 
+# SuiNS Constants (from deleted typescript/resolve-sui-name.ts)
+SUINS_PACKAGE_ID="0x22fa05f21b1ad71442491220bb9338f7b7095fe35000ef88d5400d28523bdd93"
+SUINS_REGISTRY_ID="0xb120c0d55432630fce61f7854795a3463deb6e3b443cc4ae72e1282073ff56e4"
+SUI_RPC_URL="https://fullnode.testnet.sui.io:443" # Default to testnet RPC
+
 echo "🚀 Deploying NS Account Registry to $NETWORK"
+
+# Check for jq dependency
+if ! command -v jq &> /dev/null
+then
+    echo "jq is not installed. Please install it to proceed (e.g., sudo apt-get install jq or brew install jq)."
+    exit 1
+fi
+
+# Function to resolve SuiNS name using Sui RPC
+# Arguments:
+#   $1: The SuiNS name to resolve (e.g., "reg.acct.sui")
+# Returns: The object ID of the SuinsRegistration NFT, or empty string if not found
+resolve_suins_name() {
+    local name="$1"
+    local rpc_url="$SUI_RPC_URL"
+
+    # Split name into labels and reverse for SuiNS domain format
+    IFS='.' read -ra ADDR <<< "$name"
+    local labels_array=()
+    for i in "${!ADDR[@]}"; do
+        labels_array+=("\"${ADDR[$i]}\"")
+    done
+    local reversed_labels=$(printf "%s," "${labels_array[@]}" | tac | sed 's/,$//')
+
+    local payload='{
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "sui_getDynamicFieldObject",
+        "params": [
+            "'$SUINS_REGISTRY_ID'",
+            {
+                "type": "'$SUINS_PACKAGE_ID'::domain::Domain",
+                "value": {
+                    "labels": ['"$reversed_labels"']
+                }
+            }
+        ]
+    }'
+
+    local response=$(curl -s -X POST -H "Content-Type: application/json" --data "$payload" "$rpc_url")
+    local object_id=$(echo "$response" | jq -r '.result.data.content.fields.value.fields.nft_id // empty')
+    echo "$object_id"
+}
+
 
 # Step 1: Build the package
 echo "📦 Building package..."
-sui client build
+sui move build
 
 # Step 2: Publish the package
 echo "📤 Publishing package to $NETWORK..."
@@ -32,15 +81,10 @@ echo "📋 Registry ID: $REGISTRY_ID"
 
 # Step 3: Resolve .sui name to address
 echo "🔍 Resolving $REGISTRY_OWNER_NAME to address..."
-REGISTRY_OWNER_ADDRESS=$(bun -e "import { resolveSuiName } from './typescript/resolve-sui-name.ts'; resolveSuiName('$REGISTRY_OWNER_NAME').then(address => { if (address) console.log(address); else process.exit(1); });")
+REGISTRY_OWNER_ADDRESS=$(resolve_suins_name "$REGISTRY_OWNER_NAME")
 
 if [ $? -ne 0 ] || [ -z "$REGISTRY_OWNER_ADDRESS" ]; then
-    echo "❌ Failed to resolve $REGISTRY_OWNER_NAME"
-    exit 1
-fi
-
-if [ -z "$REGISTRY_OWNER_ADDRESS" ]; then
-    echo "❌ Could not extract address from resolve output"
+    echo "❌ Failed to resolve $REGISTRY_OWNER_NAME. Make sure it's registered on SuiNS."
     exit 1
 fi
 
@@ -78,7 +122,7 @@ fi
 
 # Step 4: Check if reg.acct.sui needs to be updated
 echo "🌐 Checking reg.acct.sui target..."
-CURRENT_REGISTRY_ID=$(bun -e "import { resolveSuiName } from './typescript/resolve-sui-name.ts'; resolveSuiName('reg.acct.sui').then(address => { if (address) console.log(address); else process.exit(1); });")
+CURRENT_REGISTRY_ID=$(resolve_suins_name "reg.acct.sui")
 
 if [ "$CURRENT_REGISTRY_ID" = "$REGISTRY_ID" ]; then
     echo "✅ reg.acct.sui already points to the newly deployed registry ID: $REGISTRY_ID"

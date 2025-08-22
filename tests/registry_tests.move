@@ -1,6 +1,6 @@
 #[test_only]
-module ns_acct_addr::registry_tests {
-    use ns_acct_addr::registry;
+module acct_registry::registry_tests {
+    use acct_registry::ns_acct as registry;
     use sui::object;
     use sui::test_scenario;
     use sui::table;

@@ -6,8 +6,7 @@ authors = ["Brandon Arbuthnot (brandon@imbibed.life)"]
 
 [dependencies]
 Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/mainnet" }
-# SuiNS core package (generic core v4 tag)
-suins = { git = "https://github.com/mystenlabs/suins-contracts/", subdir = "packages/suins", rev = "releases/core/4" }
+suins = { git = "https://github.com/MystenLabs/suins-contracts.git", subdir = "packages/suins", rev = "4ec58e8155c0f8c1e6cd63df88d18cdf7b09bc62" }
 
 [addresses]
 acct_registry = "0x0"
