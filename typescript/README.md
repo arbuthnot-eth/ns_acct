@@ -19,8 +19,8 @@ bun run query "n-s.acct.sui"
 bun run list
 
 # Alternative: direct script execution
-bun query-registry.ts "n-s.acct.sui"
-bun query-registry.ts --list
+bun query-ns.ts "n-s.acct.sui"
+bun query-ns.ts --list
 ```
 
 ## 📋 Example Output
@@ -81,7 +81,7 @@ console.log(domains); // ["n-s.acct.sui"]
 
 ## 🌐 Network
 
-Currently configured for **Sui Testnet**. To use on mainnet, change `getFullnodeUrl('testnet')` to `getFullnodeUrl('mainnet')` in `query-registry.ts`.
+Currently configured for **Sui Testnet**. To use on mainnet, change `getFullnodeUrl('testnet')` to `getFullnodeUrl('mainnet')` in `query-ns.ts`.
 
 ## 🆕 Recent Updates
 

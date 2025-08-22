@@ -5,7 +5,7 @@ import { SuinsClient } from '@mysten/suins';
 const NETWORK = 'testnet';
 const NAMESPACE = 'ns';
 
-interface AccountDataResult {
+interface AcctDataResult {
   key: string;
   data: any | null;
   target: string | null;
@@ -48,10 +48,11 @@ async function resolveReverseName(client: SuiClient, address: string): Promise<s
   }
 }
 
-// Note: Manual subname resolution removed - SuinsClient handles this automatically
-
-async function getAccountData(domain: string, defaultToOwner: boolean = false) {
-  const result: AccountDataResult = {
+//Get Acct data from the namespace
+async function getAcctData(domain: string, defaultToOwner: boolean = false) {
+  const client = new SuiClient({ url: await getRPC_URL(NETWORK) });
+  const suinsClient = new SuinsClient({ client, network: NETWORK });
+  const result: AcctDataResult = {
     key: domain,
     data: null,
     target: null,
@@ -59,9 +60,6 @@ async function getAccountData(domain: string, defaultToOwner: boolean = false) {
     ownerDisplay: null,
     targetDisplay: null,
   };
-
-  const client = new SuiClient({ url: await getRPC_URL(NETWORK) });
-  const suinsClient = new SuinsClient({ client, network: NETWORK });
 
   try {
     // Step 1: Resolve SuiNS name using getNameRecord
@@ -104,9 +102,11 @@ async function getAccountData(domain: string, defaultToOwner: boolean = false) {
     result.owner = suinsObject.data.owner
       ? typeof suinsObject.data.owner === 'string'
         ? suinsObject.data.owner
-        : 'AddressOwner' in suinsObject.data.owner
-          ? suinsObject.data.owner.AddressOwner
-          : null
+        : ('ObjectOwner' in suinsObject.data.owner
+          ? suinsObject.data.owner.ObjectOwner
+          : ('AddressOwner' in suinsObject.data.owner
+            ? suinsObject.data.owner.AddressOwner
+            : null))
       : null;
 
     // Set target from NameRecord or manual resolution
@@ -178,15 +178,15 @@ async function getAccountData(domain: string, defaultToOwner: boolean = false) {
     }
     console.log(`✅ Success! AcctObject for ${domain} found in the ${NETWORK} ${NAMESPACE} namespace`);
 
-    // Step 8: Get account data from registry
-    const accountObj = await client.getObject({
+    // Step 8: Get Acct data from registry
+    const AcctObj = await client.getObject({
       id: domainEntry.objectId,
       options: { showContent: true },
     });
 
-    result.data = (accountObj.data?.content as any)?.fields?.value?.fields?.data || null;
+    result.data = (AcctObj.data?.content as any)?.fields?.value?.fields?.data || null;
     if (!result.data) {
-      console.warn('No account data found in registry entry');
+      console.warn('No acct data found in registry entry');
     }
 
     return result;
@@ -196,7 +196,7 @@ async function getAccountData(domain: string, defaultToOwner: boolean = false) {
   }
 }
 
-async function printFormattedAccountData(result: AccountDataResult) {
+async function printFormattedAcctData(result: AcctDataResult) {
   console.log('─'.repeat(50));
   console.log(`🔑 Name:   ${result.key}`);
   console.log(`👤 Owner:  ${result.ownerDisplay || `❌ Not owned in ${NETWORK} SuiNS registry`}`);
@@ -208,14 +208,17 @@ async function printFormattedAccountData(result: AccountDataResult) {
 // Main execution block
 if (require.main === module) {
   const args = process.argv.slice(2);
-  const domain = args[0];
+  let domain = args[0];
+  if (domain && !domain.endsWith('.sui')) {
+    domain = `${domain}.sui`;
+  }
   const defaultToOwner = args[1] === 'true';
 
   if (domain) {
-    getAccountData(domain, defaultToOwner)
+    getAcctData(domain, defaultToOwner)
       .then((result) => {
         if (result) {
-          printFormattedAccountData(result);
+          printFormattedAcctData(result);
         } else {
           console.log('Query failed or returned no data.');
         }
@@ -224,7 +227,7 @@ if (require.main === module) {
         console.error(`Unhandled error: ${error}`);
       });
   } else {
-    console.log('Usage: node query-registry.js <domain.sui> [defaultToOwner]');
-    console.log('Example: node query-registry.js n-s.acct.sui true');
+    console.log('Usage: node query-ns.js <domain.sui> [defaultToOwner]');
+    console.log('Example: node query-ns.js n-s.acct.sui true');
   }
 }
