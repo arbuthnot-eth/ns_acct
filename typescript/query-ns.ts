@@ -2,8 +2,8 @@ import { SuiClient } from '@mysten/sui/client';
 import { SuinsClient } from '@mysten/suins';
 
 // Constants
-const NETWORK = 'testnet';
-const NAMESPACE = 'ns';
+const NETWORK = 'mainnet';
+const NAMESPACE = 'NS';
 
 interface AcctDataResult {
   key: string;
@@ -17,9 +17,9 @@ interface AcctDataResult {
 async function getRPC_URL(network: string): Promise<string> {
   switch (network) {
     case 'testnet':
-      return 'https://sui-testnet-rpc.publicnode.com';
+      return 'https://fullnode.testnet.sui.io:443';
     case 'mainnet':
-      return 'https://sui-mainnet-rpc.publicnode.com';
+      return 'https://sui-rpc.publicnode.com';
     default:
       throw new Error(`Unsupported network: ${network}`);
   }
