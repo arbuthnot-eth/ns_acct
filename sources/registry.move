@@ -31,10 +31,7 @@ module acct_registry::ns_acct {
     /// Custom AcctObject stored in Namespace entries
     public struct AcctObject has key, store {
         id: sui::object::UID,
-        key: String,  // e.g., "domain.sui" or "sub.domain.sui"
         data: String, // Custom metadata or payload
-        target: address,  // Optional target address
-        owner: address,   // Original owner of the .sui name
     }
 
     // Registry Functions
@@ -128,15 +125,14 @@ module acct_registry::ns_acct {
     }
 
     /// Update an entry in a namespace using NFT verification (preferred method)
-    /// Most secure as it requires the actual SuiNS NFT
+    /// Most secure as it requires the actual SuiNS NFT for parent domains
+    /// Note: This only works for parent domains that have NFTs, not leaf subnames
     public fun update_entry_with_nft(
         registry: &mut Registry,
         suins: &SuiNS,
         nft: &SuinsRegistration,
         namespace_name: String,
         data: String,      // Custom data for AcctObject
-        target: address,   // Target address for AcctObject
-        caller: address,
         ctx: &mut sui::tx_context::TxContext
     ) {
         // Borrow the namespace (this will abort if namespace doesn't exist)
@@ -152,10 +148,7 @@ module acct_registry::ns_acct {
         // Create or update the AcctObject
         let acct_obj = AcctObject {
             id: sui::object::new(ctx),
-            key,
             data,
-            target,
-            owner: caller,
         };
 
         // Add or update the entry
@@ -167,15 +160,16 @@ module acct_registry::ns_acct {
         sui::table::add(&mut namespace_obj.entries, key, acct_obj);
     }
 
-    /// Update an entry in a namespace (fallback method)
+
+    /// Update an entry in a namespace (works for both domains and subnames)
     /// Verifies caller owns the .sui key via target address check
+    /// Handles both parent domains and leaf subnames
     public fun update_entry(
         registry: &mut Registry,
         suins: &SuiNS,
         namespace_name: String,
         key: String,       // e.g., "domain.sui"
         data: String,      // Custom data for AcctObject
-        target: address,   // Target address for AcctObject
         caller: address,
         ctx: &mut sui::tx_context::TxContext
     ) {
@@ -185,15 +179,11 @@ module acct_registry::ns_acct {
 
         // Verify caller owns the domain via SuiNS
         assert!(verify_domain_ownership(suins, key, caller), ENotAuthorized);
-        let key_owner = caller;
 
         // Create or update the AcctObject
         let acct_obj = AcctObject {
             id: sui::object::new(ctx),
-            key,
             data,
-            target,
-            owner: key_owner,
         };
 
         // Add or update the entry
@@ -240,18 +230,12 @@ module acct_registry::ns_acct {
 
     /// Create an AcctObject directly (helper function)
     public fun create_acct_object(
-        key: String,
         data: String,
-        target: address,
-        owner: address,
         ctx: &mut sui::tx_context::TxContext
     ): AcctObject {
         AcctObject {
             id: sui::object::new(ctx),
-            key,
             data,
-            target,
-            owner,
         }
     }
 
@@ -272,34 +256,26 @@ module acct_registry::ns_acct {
         namespace.name
     }
 
-    /// Get AcctObject key
-    public fun acct_key(acct: &AcctObject): String {
-        acct.key
-    }
+
 
     /// Get AcctObject data
     public fun acct_data(acct: &AcctObject): String {
         acct.data
     }
 
-    /// Get AcctObject target
-    public fun acct_target(acct: &AcctObject): address {
-        acct.target
-    }
 
-    /// Get AcctObject owner
-    public fun acct_owner(acct: &AcctObject): address {
-        acct.owner
-    }
+
+
 
     /// External query function that returns copyable data instead of references
     /// This can be called from transactions and returns the account data
+    /// Note: Owner and target information should be queried from SuiNS directly
     public fun get_account_data(
         registry: &Registry,
         namespace_name: String,
         key: String
-    ): (String, String, address, address) {
+    ): (String, String) {
         let acct = query(registry, namespace_name, key);
-        (acct.key, acct.data, acct.target, acct.owner)
+        (key, acct.data)  // Return the key parameter since it's not stored in the object
     }
 }
