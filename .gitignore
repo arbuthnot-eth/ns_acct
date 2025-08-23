@@ -1,17 +1,21 @@
+# Build and trace artifacts
 build/*
 .trace
 .coverage*
-frontend/node_modules
 
-# TypeScript/Node.js artifacts
-typescript/node_modules/
-typescript/*.js
-typescript/*.js.map
-typescript/dist/
+# Node.js/TypeScript artifacts (now in root)
+node_modules/
+*.js
+*.js.map
+dist/
 
-# Deployment artifacts (keep config.json as it's organized)
+# Deployment artifacts (ignore results, keep config.json and deployment_registry.json for reference)
 all_objects.json
 deployment_result.json
-# deployment_info.json can be kept for reference
 
+# Generated documentation
 codebase.txt
+codebase.md
+
+# Other ignores (if applicable, e.g., frontend if it exists)
+frontend/node_modules
