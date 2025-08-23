@@ -5,7 +5,8 @@
   "main": "query-ns.ts",
   "scripts": {
     "query": "bun query-ns.ts --",
-    "list": "bun query-ns.ts --list"
+    "list": "bun query-ns.ts --list",
+    "doc": "bash scripts/generate_codebase.sh"
   },
   "dependencies": {
     "@mysten/sui": "^1.37.4",

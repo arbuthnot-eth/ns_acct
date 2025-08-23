@@ -10,16 +10,16 @@ Streamlined deployment script with improved error handling and user experience.
 #### Usage
 ```bash
 # Deploy to mainnet (default)
-./deploy/deploy_registry_clean.sh mainnet deploy
+./scripts/deploy_registry_clean.sh mainnet deploy
 
 # Deploy to testnet  
-./deploy/deploy_registry_clean.sh testnet deploy
+./scripts/deploy_registry_clean.sh testnet deploy
 
 # Check deployment status
-./deploy/deploy_registry_clean.sh mainnet status
+./scripts/deploy_registry_clean.sh mainnet status
 
 # Add a new namespace
-./deploy/deploy_registry_clean.sh mainnet add-namespace "MyNamespace"
+./scripts/deploy_registry_clean.sh mainnet add-namespace "MyNamespace"
 ```
 
 #### Features
@@ -49,7 +49,7 @@ Original deployment script with more verbose output and manual steps.
 
 2. **Deploy Registry**
    ```bash
-   ./deploy/deploy_registry_clean.sh mainnet deploy
+   ./scripts/deploy_registry_clean.sh mainnet deploy
    ```
 
 3. **Set up Domain (Manual)**
@@ -59,7 +59,7 @@ Original deployment script with more verbose output and manual steps.
 
 4. **Verify Deployment**
    ```bash
-   ./deploy/deploy_registry_clean.sh mainnet status
+   ./scripts/deploy_registry_clean.sh mainnet status
    cd typescript && bun query-ns.ts <test-domain.sui>
    ```
 
@@ -105,7 +105,7 @@ Install the Sui CLI from the official documentation.
 ## Example Output
 
 ```bash
-$ ./deploy/deploy_registry_clean.sh mainnet status
+$ ./scripts/deploy_registry_clean.sh mainnet status
 
 ===========================================
 Registry Status (mainnet)

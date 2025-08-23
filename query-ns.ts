@@ -196,6 +196,84 @@ async function getAcctData(domain: string, defaultToOwner: boolean = false) {
   }
 }
 
+async function listAllRegisteredNames() {
+  const client = new SuiClient({ url: await getRPC_URL(NETWORK) });
+  const suinsClient = new SuinsClient({ client, network: NETWORK });
+
+  try {
+    // Resolve reg.acct.sui to get the registry address
+    const registryRecord = await suinsClient.getNameRecord('reg.acct.sui');
+    const registryId = registryRecord?.targetAddress || null;
+    console.log(`🔍 reg.acct.sui resolved: ${registryId ? shortenAddress(registryId) : 'null'}`);
+    if (!registryId) {
+      console.warn('Could not resolve registry address for reg.acct.sui');
+      return;
+    }
+
+    // Get registry object
+    const registry = await client.getObject({
+      id: registryId,
+      options: { showContent: true },
+    });
+
+    const namespacesTableId = (registry.data?.content as any)?.fields?.namespaces?.fields?.id?.id;
+    if (!namespacesTableId) {
+      console.warn('No namespaces table found in reg.acct.sui');
+      return;
+    }
+
+    // Find namespace
+    const namespaces = await client.getDynamicFields({ parentId: namespacesTableId });
+    const nsNamespace = namespaces.data?.find((f: any) => f.name.value === NAMESPACE);
+    if (!nsNamespace) {
+      console.warn(`Namespace '${NAMESPACE}' not found in ${NETWORK} registry (reg.acct.sui)`);
+      return;
+    }
+
+    // Get entries table from namespace
+    const namespaceObj = await client.getObject({
+      id: nsNamespace.objectId,
+      options: { showContent: true },
+    });
+
+    const entriesTableId = (namespaceObj.data?.content as any)?.fields?.value?.fields?.entries?.fields?.id?.id;
+    if (!entriesTableId) {
+      console.warn(`No entries table found in ${NETWORK} ${NAMESPACE} namespace`);
+      return;
+    }
+
+    // Get all entries from the registry
+    let cursor: string | undefined | null = null;
+    let allEntries: any[] = [];
+    do {
+      const response = await client.getDynamicFields({ parentId: entriesTableId, cursor: cursor || undefined });
+      allEntries = allEntries.concat(response.data);
+      if (response.data.length === 0 && !response.nextCursor) {
+        cursor = null;
+      } else if (response.data.length === 0 && response.nextCursor === cursor) {
+        cursor = null;
+      } else {
+        cursor = response.nextCursor;
+      }
+    } while (cursor);
+
+    if (allEntries.length === 0) {
+      console.log(`No names registered in the ${NETWORK} ${NAMESPACE} namespace.`);
+      return;
+    }
+
+    console.log(`Found ${allEntries.length} registered names in the ${NETWORK} ${NAMESPACE} namespace:`);
+    for (const entry of allEntries) {
+      const domainName = entry.name.value;
+      const result = await getAcctData(domainName);
+      await printFormattedAcctData(result);
+    }
+
+  } catch (error) {
+    console.error(`❌ Error listing registered names:`, error);
+  }
+}
+
 async function printFormattedAcctData(result: AcctDataResult) {
   console.log('─'.repeat(50));
   console.log(`🔑 Name:   ${result.key}`);
@@ -208,26 +286,35 @@ async function printFormattedAcctData(result: AcctDataResult) {
 // Main execution block
 if (require.main === module) {
   const args = process.argv.slice(2);
-  let domain = args[0];
-  if (domain && !domain.endsWith('.sui')) {
-    domain = `${domain}.sui`;
-  }
-  const defaultToOwner = args[1] === 'true';
+  const listFlagIndex = args.indexOf('--list');
 
-  if (domain) {
-    getAcctData(domain, defaultToOwner)
-      .then((result) => {
-        if (result) {
-          printFormattedAcctData(result);
-        } else {
-          console.log('Query failed or returned no data.');
-        }
-      })
+  if (listFlagIndex !== -1) {
+    listAllRegisteredNames()
       .catch((error) => {
-        console.error(`Unhandled error: ${error}`);
+        console.error(`Unhandled error during listing: ${error}`);
       });
   } else {
-    console.log('Usage: node query-ns.js <domain.sui> [defaultToOwner]');
-    console.log('Example: node query-ns.js n-s.acct.sui true');
+    let domain = args[0];
+    if (domain && !domain.endsWith('.sui')) {
+      domain = `${domain}.sui`;
+    }
+    const defaultToOwner = args[1] === 'true';
+
+    if (domain) {
+      getAcctData(domain, defaultToOwner)
+        .then((result) => {
+          if (result) {
+            printFormattedAcctData(result);
+          } else {
+            console.log('Query failed or returned no data.');
+          }
+        })
+        .catch((error) => {
+          console.error(`Unhandled error: ${error}`);
+        });
+    } else {
+      console.log('Usage: bun query-ns.ts <domain.sui> [defaultToOwner]');
+      console.log('Example: bun query-ns.ts n-s.acct.sui true');
+    }
   }
 }

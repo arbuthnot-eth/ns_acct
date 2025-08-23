@@ -22,7 +22,7 @@ A domain-verified account system on Sui that integrates with SuiNS for secure, d
 - **Package**: `0xfc0013e0ae7d778cf5702e0e9772a1d4f8a8b99b39395d801b0351b06a4f9918`
 - **Registry**: `0xb8063a009cbcc2310c82cb2c315e5c0196a3b12409d6b88b25f692505966087f`
 - **Discovery**: `reg.acct.sui` → Registry Object
-- **Example Entry**: `n-s.acct.sui` in "ns" namespace
+- **Example Entry**: `alien.sui` in "ns" namespace
 
 ## 📁 Project Structure
 
@@ -34,7 +34,7 @@ A domain-verified account system on Sui that integrates with SuiNS for secure, d
 │   ├── query-registry.ts
 │   ├── package.json
 │   └── README.md
-└── deploy/           # Deployment scripts
+└── scripts/           # Deployment scripts
     └── deploy_registry.sh
 ```
 
